@@ -9,18 +9,22 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserbyId = (req, res) => {
-  User.find({ _id: req.params.userId })
+  User.findById(req.params.userId)
     .orFail(() => {
       const error = new Error('Пользователь не найден');
       error.statusCode = 404;
       throw error;
     })
     .then((user) => {
-      res.status(200).send(user[0]);
+      res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.statusCode === 404 || err.name === 'CastError') {
+      if (err.statusCode === 404) {
         res.status(404).send({ message: 'Пользователь не найден' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
         return;
       }
       res.status(500).send({ message: err.message });

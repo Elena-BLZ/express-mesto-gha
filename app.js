@@ -21,7 +21,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use((req, res) => {
-  res.status(404).send('Нет такого покемона');
+  res.status(404).send({ message: 'Нет такого покемона' });
 });
 
 app.listen(PORT, () => {

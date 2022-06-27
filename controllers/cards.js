@@ -34,8 +34,12 @@ module.exports.delCard = (req, res) => {
       res.status(200).send(card);
     })
     .catch((err) => {
-      if (err.statusCode === 404 || err.name === 'CastError') {
+      if (err.statusCode === 404) {
         res.status(404).send({ message: 'Карточка не найдена' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
         return;
       }
       res.status(500).send({ message: err.message });
@@ -54,8 +58,12 @@ module.exports.likeCard = (req, res) => {
   })
     .then((likes) => res.status(200).send(likes))
     .catch((err) => {
-      if (err.statusCode === 404 || err.name === 'CastError') {
+      if (err.statusCode === 404) {
         res.status(404).send({ message: 'Карточка не найдена' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
         return;
       }
       res.status(500).send({ message: err.message });
@@ -74,8 +82,12 @@ module.exports.dislikeCard = (req, res) => {
   })
     .then((likes) => res.status(200).send(likes))
     .catch((err) => {
-      if (err.statusCode === 404 || err.name === 'CastError') {
+      if (err.statusCode === 404) {
         res.status(404).send({ message: 'Карточка не найдена' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
         return;
       }
       res.status(500).send({ message: err.message });
