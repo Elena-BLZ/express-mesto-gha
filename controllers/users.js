@@ -16,7 +16,7 @@ module.exports.getUserbyId = (req, res) => {
       throw error;
     })
     .then((user) => {
-      res.status(200).send(user);
+      res.status(200).send(user[0]);
     })
     .catch((err) => {
       if (err.statusCode === 404 || err.name === 'CastError') {
@@ -55,7 +55,7 @@ module.exports.editUserProfile = (req, res) => {
     error.statusCode = 404;
     throw error;
   })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
@@ -83,7 +83,7 @@ module.exports.editUserAvatar = (req, res) => {
     error.statusCode = 404;
     throw error;
   })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
