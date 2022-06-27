@@ -4,6 +4,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
+const {
+  NOT_FOUND,
+} = require('./utils/constants');
+
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 const app = express();
@@ -21,7 +25,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use((req, res) => {
-  res.status(404).send({ message: 'Нет такого покемона' });
+  res.status(NOT_FOUND).send({ message: 'Нет такого покемона' });
 });
 
 app.listen(PORT, () => {
