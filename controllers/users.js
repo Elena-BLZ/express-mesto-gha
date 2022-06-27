@@ -13,6 +13,22 @@ module.exports.getUsers = (req, res) => {
     .catch((err) => res.status(SERVER_ERROR).send({ message: err.message }));
 };
 
+const errorCoder = (err, res, name) => {
+  if (err.name === 'ValidationError') {
+    res.status(ERROR_CODE).send({ message: err.message });
+    return;
+  }
+  if (err.statusCode === NOT_FOUND) {
+    res.status(NOT_FOUND).send({ message: `${name} не найден`, err });
+    return;
+  }
+  if (err.name === 'CastError') {
+    res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
+    return;
+  }
+  res.status(SERVER_ERROR).send({ message: err.message });
+};
+
 module.exports.getUserbyId = (req, res) => {
   User.findById(req.params.userId)
     .orFail(() => {
@@ -24,15 +40,7 @@ module.exports.getUserbyId = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.statusCode === NOT_FOUND) {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден', err });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
-        return;
-      }
-      res.status(SERVER_ERROR).send({ message: err.message });
+      errorCoder(err, res, 'Пользователь');
     });
 };
 
@@ -42,11 +50,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(CREATED_CODE).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
-        return;
-      }
-      res.status(SERVER_ERROR).send({ message: err.message });
+      errorCoder(err, res);
     });
 };
 
@@ -66,15 +70,7 @@ module.exports.editUserProfile = (req, res) => {
   })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
-        return;
-      }
-      if (err.statusCode === NOT_FOUND || err.name === 'CastError') {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
-        return;
-      }
-      res.status(SERVER_ERROR).send({ message: err.message });
+      errorCoder(err, res, 'Пользователь');
     });
 };
 
@@ -94,14 +90,6 @@ module.exports.editUserAvatar = (req, res) => {
   })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
-        return;
-      }
-      if (err.statusCode === NOT_FOUND || err.name === 'CastError') {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
-        return;
-      }
-      res.status(SERVER_ERROR).send({ message: err.message });
+      errorCoder(err, res, 'Пользователь');
     });
 };
