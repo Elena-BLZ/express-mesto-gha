@@ -25,7 +25,7 @@ module.exports.getUserbyId = (req, res) => {
     })
     .catch((err) => {
       if (err.statusCode === NOT_FOUND) {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
+        res.status(NOT_FOUND).send({ message: 'Пользователь не найден', err });
         return;
       }
       if (err.name === 'CastError') {
@@ -43,7 +43,7 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.status(CREATED_CODE).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: 'Данные введены неверно' });
+        res.status(ERROR_CODE).send({ message: err.message });
         return;
       }
       res.status(SERVER_ERROR).send({ message: err.message });
