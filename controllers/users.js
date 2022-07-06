@@ -1,36 +1,50 @@
+const bcrypt = require('bcryptjs');
+
 const User = require('../models/user');
 
 const {
-  NOT_FOUND,
   CREATED_CODE,
 } = require('../utils/constants');
 
-const { errorCoder, throwNotFound } = require('../utils/helpers');
+const NotFoundError = require('../errors/not-found-err');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => errorCoder(err, res));
+    .catch(next);
 };
 
-module.exports.getUserbyId = (req, res) => {
+module.exports.getUserbyId = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => throwNotFound('Пользователь не найден'))
+    .orFail(() => { throw new NotFoundError('Пользователь не найден'); })
     .then((user) => {
       res.send(user);
     })
-    .catch((err) => errorCoder(err, res));
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((user) => res.status(CREATED_CODE).send(user))
-    .catch((err) => errorCoder(err, res));
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((user) => {
+      // const noPassUser = {
+      //   name: user.name,
+      //   about: user.about,
+      //   avatar: user.avatar,
+      //   email: user.email,
+      //   _id: user._id,
+      // };
+      res.status(CREATED_CODE).send(user);
+    })
+    .catch(next);
 };
 
-module.exports.editUserProfile = (req, res) => {
+module.exports.editUserProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -39,12 +53,12 @@ module.exports.editUserProfile = (req, res) => {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true,
     },
-  ).orFail(() => throwNotFound('Пользователь не найден'))
+  ).orFail(() => { throw new NotFoundError('Пользователь не найден'); })
     .then((user) => res.send(user))
-    .catch((err) => errorCoder(err, res));
+    .catch(next);
 };
 
-module.exports.editUserAvatar = (req, res) => {
+module.exports.editUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -53,13 +67,7 @@ module.exports.editUserAvatar = (req, res) => {
       new: true,
       runValidators: true,
     },
-  ).orFail(() => throwNotFound('Пользователь не найден'))
+  ).orFail(() => { throw new NotFoundError('Пользователь не найден'); })
     .then((user) => res.send(user))
-    .catch((err) => errorCoder(err, res));
-};
-
-module.exports.throwNotFound = (message) => {
-  const error = new Error(message);
-  error.statusCode = NOT_FOUND;
-  throw error;
+    .catch(next);
 };

@@ -2,6 +2,7 @@ const {
   ERROR_CODE,
   NOT_FOUND,
   SERVER_ERROR,
+  EMAIL_CONFLICT,
 } = require('./constants');
 
 module.exports.errorCoder = (err, res) => {
@@ -10,7 +11,11 @@ module.exports.errorCoder = (err, res) => {
     return;
   }
   if (err.statusCode === NOT_FOUND) {
-    res.status(NOT_FOUND).send({ message: err.message });
+    res.status(err.statusCode).send({ message: err.message });
+    return;
+  }
+  if (err.code === 11000) {
+    res.status(EMAIL_CONFLICT).send({ message: 'Email занят' });
     return;
   }
   if (err.name === 'CastError') {
@@ -18,10 +23,4 @@ module.exports.errorCoder = (err, res) => {
     return;
   }
   res.status(SERVER_ERROR).send({ message: err.message });
-};
-
-module.exports.throwNotFound = (message) => {
-  const error = new Error(message);
-  error.statusCode = NOT_FOUND;
-  throw error;
 };
