@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const { usersJoi } = require('./utils/celebrate');
+const { auth } = require('./middlewares/auth');
 
 const {
   NOT_FOUND,
@@ -20,19 +21,12 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 
 const app = express();
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '62b4a1711d079819bc2abebb',
-  };
-  next();
-});
-
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signin', login);
-// app.post('/signup', usersJoi, createUser);
-app.post('/signup', createUser);
+app.post('/signup', usersJoi, createUser);
+app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
@@ -42,9 +36,9 @@ app.use((req, res) => {
 
 app.use(errors());
 
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   errorCoder(err, res);
-  next();
 });
 
 app.listen(PORT, () => {

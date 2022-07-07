@@ -25,6 +25,14 @@ module.exports.getUserbyId = (req, res, next) => {
     })
     .catch(next);
 };
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(() => { throw new NotFoundError('Пользователь не найден'); })
+    .then((user) => {
+      res.send(user);
+    })
+    .catch(next);
+};
 
 module.exports.createUser = (req, res, next) => {
   const {
@@ -66,7 +74,7 @@ module.exports.login = (req, res, next) => {
               maxAge: 3600000 * 24 * 7,
               httpOnly: true,
             })
-            .end();
+            .send({ message: 'Авторизация прошла успешно' });
         });
     })
 

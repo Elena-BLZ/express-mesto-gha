@@ -1,6 +1,5 @@
 const {
   ERROR_CODE,
-  NOT_FOUND,
   SERVER_ERROR,
   EMAIL_CONFLICT,
 } = require('./constants');
@@ -10,7 +9,7 @@ module.exports.errorCoder = (err, res) => {
     res.status(ERROR_CODE).send({ message: err.message });
     return;
   }
-  if (err.statusCode === NOT_FOUND) {
+  if (err.statusCode) {
     res.status(err.statusCode).send({ message: err.message });
     return;
   }
