@@ -1,15 +1,20 @@
+require('dotenv').config();
+
 const { PORT = 3000 } = process.env;
 
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const cookieParser = require('cookie-parser');
+const { usersJoi } = require('./utils/celebrate');
 
 const {
   NOT_FOUND,
 } = require('./utils/constants');
 
 const { errorCoder } = require('./utils/helpers');
+const { login, createUser } = require('./controllers/users');
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
@@ -23,7 +28,11 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.post('/signin', login);
+// app.post('/signup', usersJoi, createUser);
+app.post('/signup', createUser);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
