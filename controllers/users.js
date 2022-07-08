@@ -10,6 +10,7 @@ const {
 
 const NotFoundError = require('../errors/not-found-err');
 const AuthError = require('../errors/auth-err');
+const ConflictError = require('../errors/conflict-err');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -38,19 +39,23 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
-    .then((user) => {
-      const noPassUser = {
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
-      };
-      res.status(CREATED_CODE).send(noPassUser);
+  User.findOne({ email })
+    .then((found) => {
+      if (found) { throw new ConflictError('Такой емеил уже занят'); }
+      bcrypt.hash(password, 10)
+        .then((hash) => User.create({
+          name, about, avatar, email, password: hash,
+        }))
+        .then((user) => {
+          const noPassUser = {
+            name: user.name,
+            about: user.about,
+            avatar: user.avatar,
+            email: user.email,
+            _id: user._id,
+          };
+          res.status(CREATED_CODE).send(noPassUser);
+        });
     })
     .catch(next);
 };
