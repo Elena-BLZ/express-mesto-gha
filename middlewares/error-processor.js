@@ -2,9 +2,10 @@ const {
   ERROR_CODE,
   SERVER_ERROR,
   EMAIL_CONFLICT,
-} = require('./constants');
+} = require('../utils/constants');
 
-module.exports.errorCoder = (err, res) => {
+// eslint-disable-next-line no-unused-vars
+module.exports.errorProcessor = (err, req, res, next) => {
   if (err.name === 'ValidationError') {
     res.status(ERROR_CODE).send({ message: err.message });
     return;

@@ -43,13 +43,6 @@ module.exports.createUser = (req, res, next) => {
       name, about, avatar, email, password: hash,
     }))
     .then((user) => {
-      // const noPassUser = {
-      //   name: user.name,
-      //   about: user.about,
-      //   avatar: user.avatar,
-      //   email: user.email,
-      //   _id: user._id,
-      // };
       res.status(CREATED_CODE).send(user);
     })
     .catch(next);
@@ -57,7 +50,7 @@ module.exports.createUser = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email })
+  User.findOne({ email }).select('+password')
     .then((foundUser) => {
       if (!foundUser) {
         throw new AuthError('Неверный емеил или пароль');

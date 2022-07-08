@@ -21,12 +21,10 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.delCard = (req, res, next) => {
-  Card.findById(req.params.id)
+  Card.findById(req.params.cardId)
     .orFail(() => { throw new NotFoundError('Карточка не найдена'); })
     .then((foundCard) => {
       if (foundCard.owner.toString() !== req.user._id) {
-        console.log ('owner ', foundCard.owner.toString());
-        console.log ('user ', req.user._id);
         throw new ForbiddenError('Карточку может удалить только ее владелец');
       }
       Card.deleteOne(foundCard)
