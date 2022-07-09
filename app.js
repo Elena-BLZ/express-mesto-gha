@@ -13,9 +13,7 @@ const { auth } = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const { errorProcessor } = require('./middlewares/error-processor');
 
-const {
-  NOT_FOUND,
-} = require('./utils/constants');
+const NotFoundError = require('./errors/not-found-err');
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
@@ -32,8 +30,8 @@ app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use((req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Нет такого покемона' });
+app.use(() => {
+  throw new NotFoundError('Нет такого покемона');
 });
 
 app.use(errors());

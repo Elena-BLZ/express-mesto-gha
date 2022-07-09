@@ -1,6 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
 
-const regex = /https?:\/\/(www\.)?[\w.\-~:/?#[\]@!$&'()*+,;=]+#?/i;
+const regex = /https?:\/\/(www\.)?([\w-]+\.)+[\w]+[\w.\-~:/?#[\]@!$&'()*+,;=]+#?/i;
 
 module.exports.usersJoi = celebrate({
   body: Joi.object().keys({
