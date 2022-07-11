@@ -8,7 +8,6 @@ const {
 router.get('/', getCards);
 router.delete('/:cardId', cardIdJoi, delCard);
 router.post('/', cardsJoi, createCard);
-
 router.put('/:cardId/likes', cardIdJoi, likeCard);
 router.delete('/:cardId/likes', cardIdJoi, dislikeCard);
 

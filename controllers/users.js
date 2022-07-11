@@ -28,8 +28,7 @@ module.exports.getUserbyId = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new RequestError('Данные введены неверно'));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
 module.exports.getCurrentUser = (req, res, next) => {
@@ -66,11 +65,9 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new RequestError(err.message));
-      }
-      if (err.code === 11000) {
+      } else if (err.code === 11000) {
         next(new ConflictError('Такой емеил уже занят'));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
 
@@ -96,12 +93,7 @@ module.exports.login = (req, res, next) => {
             .send({ message: 'Авторизация прошла успешно' });
         });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new RequestError(err.message));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.editUserProfile = (req, res, next) => {
@@ -118,8 +110,7 @@ module.exports.editUserProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new RequestError(err.message));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
 
@@ -137,7 +128,6 @@ module.exports.editUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new RequestError(err.message));
-      }
-      next(err);
+      } else { next(err); }
     });
 };

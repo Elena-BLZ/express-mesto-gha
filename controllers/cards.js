@@ -10,12 +10,7 @@ const RequestError = require('../errors/request-err');
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new RequestError(err.message));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -26,8 +21,7 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new RequestError(err.message));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
 
@@ -43,9 +37,10 @@ module.exports.delCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
+        console.log('in cast error');
         next(new RequestError('Данные введены неверно'));
-      }
-      next(err);
+      } console.log('in else');
+        next(err);
     });
 };
 
@@ -59,8 +54,7 @@ module.exports.likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new RequestError('Данные введены неверно'));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
 
@@ -74,7 +68,6 @@ module.exports.dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new RequestError('Данные введены неверно'));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
