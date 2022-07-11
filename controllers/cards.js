@@ -5,11 +5,17 @@ const {
 
 const NotFoundError = require('../errors/not-found-err');
 const ForbiddenError = require('../errors/forbidden-err');
+const RequestError = require('../errors/request-err');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new RequestError(err.message));
+      }
+      next(err);
+    });
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -17,7 +23,12 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.status(CREATED_CODE).send(card))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new RequestError(err.message));
+      }
+      next(err);
+    });
 };
 
 module.exports.delCard = (req, res, next) => {
@@ -30,7 +41,12 @@ module.exports.delCard = (req, res, next) => {
       Card.deleteOne(foundCard)
         .then(() => res.send(foundCard));
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new RequestError('Данные введены неверно'));
+      }
+      next(err);
+    });
 };
 
 module.exports.likeCard = (req, res, next) => {
@@ -40,7 +56,12 @@ module.exports.likeCard = (req, res, next) => {
     { new: true },
   ).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
     .then((likes) => res.send(likes))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new RequestError('Данные введены неверно'));
+      }
+      next(err);
+    });
 };
 
 module.exports.dislikeCard = (req, res, next) => {
@@ -50,5 +71,10 @@ module.exports.dislikeCard = (req, res, next) => {
     { new: true },
   ).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
     .then((likes) => res.send(likes))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new RequestError('Данные введены неверно'));
+      }
+      next(err);
+    });
 };

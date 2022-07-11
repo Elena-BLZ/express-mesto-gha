@@ -11,6 +11,7 @@ const {
 const NotFoundError = require('../errors/not-found-err');
 const AuthError = require('../errors/auth-err');
 const ConflictError = require('../errors/conflict-err');
+const RequestError = require('../errors/request-err');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -24,7 +25,12 @@ module.exports.getUserbyId = (req, res, next) => {
     .then((user) => {
       res.send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new RequestError('Данные введены неверно'));
+      }
+      next(err);
+    });
 };
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
@@ -57,7 +63,15 @@ module.exports.createUser = (req, res, next) => {
           res.status(CREATED_CODE).send(noPassUser);
         });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new RequestError(err.message));
+      }
+      if (err.code === 11000) {
+        next(new ConflictError('Такой емеил уже занят'));
+      }
+      next(err);
+    });
 };
 
 module.exports.login = (req, res, next) => {
@@ -82,8 +96,12 @@ module.exports.login = (req, res, next) => {
             .send({ message: 'Авторизация прошла успешно' });
         });
     })
-
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new RequestError(err.message));
+      }
+      next(err);
+    });
 };
 
 module.exports.editUserProfile = (req, res, next) => {
@@ -97,7 +115,12 @@ module.exports.editUserProfile = (req, res, next) => {
     },
   ).orFail(() => { throw new NotFoundError('Пользователь не найден'); })
     .then((user) => res.send(user))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new RequestError(err.message));
+      }
+      next(err);
+    });
 };
 
 module.exports.editUserAvatar = (req, res, next) => {
@@ -111,5 +134,10 @@ module.exports.editUserAvatar = (req, res, next) => {
     },
   ).orFail(() => { throw new NotFoundError('Пользователь не найден'); })
     .then((user) => res.send(user))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new RequestError(err.message));
+      }
+      next(err);
+    });
 };
