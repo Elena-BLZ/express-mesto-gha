@@ -37,10 +37,8 @@ module.exports.delCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        console.log('in cast error');
         next(new RequestError('Данные введены неверно'));
-      } console.log('in else');
-        next(err);
+      } else { next(err); }
     });
 };
 
