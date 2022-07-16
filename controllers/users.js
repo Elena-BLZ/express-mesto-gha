@@ -89,10 +89,22 @@ module.exports.login = (req, res, next) => {
             .cookie('jwt', token, {
               maxAge: 3600000 * 24 * 7,
               httpOnly: true,
+              sameSite: 'none',
+              secure: true,
             })
             .send({ message: 'Авторизация прошла успешно' });
         });
     })
+    .catch(next);
+};
+
+module.exports.logOut = (req, res, next) => {
+  res.clearCookie('jwt', {
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true,
+  })
+    .send({ message: 'Пока-пока!' })
     .catch(next);
 };
 
